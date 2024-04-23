@@ -1,0 +1,44 @@
+package br.com.rpx.budgetbuddy.resources.exceptions;
+
+import br.com.rpx.budgetbuddy.services.exceptions.BudgetBuddyException;
+import br.com.rpx.budgetbuddy.services.exceptions.DatabaseException;
+import br.com.rpx.budgetbuddy.services.exceptions.ResourceNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.time.Instant;
+
+@ControllerAdvice
+public class ResourceExceptionHandler {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<StandardError> resourceNotFound(ResourceNotFoundException e, HttpServletRequest request) {
+        String error = "Resource not found";
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(DatabaseException.class)
+    public ResponseEntity<StandardError> dataBase(DatabaseException e, HttpServletRequest request) {
+        String error = "Databese error";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(BudgetBuddyException.class)
+    public ResponseEntity<StandardError> defaultError(BudgetBuddyException e, HttpServletRequest request) {
+        String error = "Error during execution";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+
+        return ResponseEntity.status(status).body(err);
+    }
+
+}
